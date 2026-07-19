@@ -113,9 +113,9 @@ const smileySprite =
 let isDragging = false;
 let prevMouseX = 0;
 let prevMouseY = 0;
-let r = 0;
-let g = 0;
-let b = 0;
+let r = 255;
+let g = 255;
+let b = 255;
 let degree = 0;
 let scaleX = 1;
 let scaleY = 1;
@@ -151,7 +151,7 @@ function drawSpriteRotateScale(sprite, x, y, degree, scaleX, scaleY, r, g, b, a 
         
         //drawRectFilled(x_scaled + x, y_scaled + y, scaleX, scaleY, r, g, b, a)
         //drawRect(x_scaled + x, y_scaled + y, scaleX, scaleY, r, g, b, a)
-        drawEllipse(x_scaled + x, y_scaled + y, scaleX, scaleY, 255, 255, 255, a)
+        drawEllipse(x_scaled + x, y_scaled + y, scaleX, scaleY, r, g, b, a)
         //putPixel(x_scaled + x, y_scaled + y, r, g, b, a);
       }
     }
