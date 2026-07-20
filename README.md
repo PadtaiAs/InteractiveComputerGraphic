@@ -10,6 +10,8 @@
 
 Project Title: 24-bit Sprite Low-Level Transformation System
 
+https://padtaias.github.io/InteractiveComputerGraphic/
+
 โปรแกรมทำการจอง Buffer บนหน่วยความจำผ่านหน้าจอโครงสร้าง ctx.createImageData
 เพื่อเข้าถึงและควบคุมค่าสีแต่ละเม็ดพิกเซลบน Canvas ได้โดยตรง
 ในรูปแบบ Array ผืนผ้าใบเดี่ยว การคำนวณสีระบบ 24-bit (True Color): ผ่านฟังก์ชัน putPixel(x, y, r, g, b)
