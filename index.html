@@ -1,303 +1,41 @@
-<html>
+<!DOCTYPE html>
+<html lang="th">
 <head>
-    <title>:3</title>  
+    <meta charset="UTF-8">
+    <title>CV & Project Index - อภิสิทธิ์ สุมาวรรณ์</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; margin: 30px; background: #fafafa; color: #333; line-height: 1.5; }
+        .box { background: #fff; border: 1px solid #ccc; padding: 20px; max-width: 750px; margin: auto; }
+        h1 { text-align: center; margin-bottom: 5px; color: #111; }
+        .center { text-align: center; margin-bottom: 20px; }
+        h2 { background: #eee; padding: 5px 10px; font-size: 18px; border-left: 4px solid #0056b3; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 6px; }
+        .btn { display: inline-block; background: #0056b3; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        .btn:hover { background: #003d80; }
+    </style>
 </head>
 <body>
-<canvas id="canvas" width="200" height="200"
-style="width:500px; height:500px; border:1px solid #000; image-rendering: pixelated;">
-</canvas>
-<button onclick="alert('ded!')">Click Me!</button>
-<script>
+    <div class="box">
+        <h1>นายอภิสิทธิ์ สุมาวรรณ์</h1>
+        <div class="center">รหัสนิสิต: 6721601613 | หมู่: 700<br>ภาควิชาวิทยาการคอมพิวเตอร์ คณะศิลปศาสตร์และวิทยาศาสตร์ มหาวิทยาลัยเกษตรศาสตร์</div>
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const imageData = ctx.createImageData(canvas.width, canvas.height);
-const data = imageData.data; // Array of color [R,G,B,A, R,G,B,A, ...]
+        <h2>ทักษะความสามารถ (Skills)</h2>
+        <p>Java, Assembly (RISC-V), SQL / Database, HTML/CSS/JavaScript, Computer Graphics Algorithms</p>
 
-function putPixel(x, y, r, g, b, a=255) {
-    const index = (y * canvas.width + x) * 4;
-    data[index] = r;     // Red
-    data[index + 1] = g; // Green
-    data[index + 2] = b; // Blue
-    data[index + 3] = a; // Alpha
-}
+        <h2>รายละเอียดโครงงาน (Project: 24-bit Sprite Low-Level Transformation System)</h2>
+        <ul>
+            <li><b>Memory Buffer & 24-bit Color:</b> จอง Buffer บนหน่วยความจำผ่าน <code>ctx.createImageData</code> ควบคุมพิกเซลบน Canvas โดยตรงในรูปแบบ Array [R, G, B, A, ...] และคำนวณสี 24-bit (True Color) ผ่าน <code>putPixel(x, y, r, g, b)</code> แยกช่องสีละ 8-bit รองรับสูงสุด 16.7 ล้านสี</li>
+            <li><b>Scaling & Translation:</b> คูณพิกัดหลังหมุนด้วย <code>scaleX</code>, <code>scaleY</code> เพื่อย่อ/ขยาย และนำไปบวกพิกัด <code>MouseX</code>, <code>MouseY</code> เพื่อเลื่อนตำแหน่งวัตถุ</li>
+            <li><b>Primitive Rendering:</b> นำจุดยอดไปวาดเติมพิกเซลด้วยฟังก์ชัน <code>drawEllipse</code> ทำให้ Sprite ยืดหด หมุน และเคลื่อนที่ได้สมบูรณ์</li>
+            <li><b>Keyboard Interaction:</b> สลับชุดสี 24-bit RGB ด้วยปุ่ม 1, 2, 3, e และควบคุมการหมุน/ย่อขยายด้วยปุ่มลูกศร (จำกัดขั้นต่ำที่ 1)</li>
+            <li><b>Mouse Tracking:</b> แปลงพิกัด CSS เป็นพิกัดจริงบนราสเตอร์ Canvas ผ่าน <code>toScaledMouseCoords</code> ให้วัตถุเคลื่อนตามเมาส์ทันที</li>
+            <li><b>Animation Loop:</b> ใช้ <code>requestAnimationFrame(animate)</code> ล้างเฟรมเก่าด้วย <code>drawRectFilled</code> ก่อนอัปเดต Sprite ใหม่ต่อเนื่อง</li>
+        </ul>
 
-function drawLine(x1, y1, x2, y2, r, g, b, a = 255) {
-  const dx = Math.abs(x2 - x1);
-  const dy = Math.abs(y2 - y1);
-
-  if(dx > dy) {
-    const m = (y2 - y1) / (x2 - x1);
-    const c = y1 - m * x1;
-    for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
-      const y = Math.round(m * x + c);
-      putPixel(x, y, r, g, b, a);
-    }
-  } else {
-    const m = (x2 - x1) / (y2 - y1);
-    const c = x1 - m * y1;
-    for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
-      const x = Math.round(m * y + c);
-      putPixel(x, y, r, g, b, a);
-    }
-  }
-}
-
-function drawRect(x1,y1,x2,y2,r,g,b,a = 255){
-    drawLine(x1,y1,x2,y1,r,g,b,a); // Top edge
-    drawLine(x2,y1,x2,y2,r,g,b,a); // Right edge
-    drawLine(x2,y2,x1,y2,r,g,b,a); // Bottom edge
-    drawLine(x1,y2,x1,y1,r,g,b,a); // Left edge
-}
-
-function drawRectFilled(x1,y1,x2,y2,r,g,b,a = 255){
-    for(let y = y1; y <= y2; y++){
-        for(let x = x1; x <= x2; x++){
-                putPixel(x,y,r,g,b,a);
-        }
-    }
-}
-
-function drawRectGradient(x1,y1,x2,y2, r1,g1,b1, r2,g2,b2, a = 255){
-    for(let y = y1; y <= y2; y++){
-        let t = (y - y1) / (y2 - y1);
-        let r = Math.round(r1 * (1 - t) + r2 * t);
-        let g = Math.round(g1 * (1 - t) + g2 * t);
-        let b = Math.round(b1 * (1 - t) + b2 * t);
-        for(let x = x1; x <= x2; x++){
-            putPixel(x,y,r,g,b,a);
-        }
-    }
-}
-
-function drawEllipse(cx, cy, rx, ry, r, g, b, a = 255) {
-    for (let y = -ry; y <= ry; y++) {
-        for (let x = -rx; x <= rx; x++) {
-            if ((x * x) / (rx * rx) + (y * y) / (ry * ry) < 1) {
-                putPixel(cx + x, cy + y, r, g, b, a);
-            }
-        }
-    }
-}
-
-const spaceInvaderSprite = [
-            [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-            [0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1],
-            [0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1],
-            [0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-            [0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1],
-            [0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1],
-            [0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1],
-            [0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0],
-            [1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-            [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-            [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0],
-            [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        ];
-
-const smileySprite = 
-   [
-    [0, 0, 1, 1, 1, 1, 0, 0],
-    [0, 1, 0, 0, 0, 0, 1, 0],
-    [1, 0, 1, 0, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 0, 0, 1, 0, 1],
-    [1, 0, 0, 1, 1, 0, 0, 1],
-    [0, 1, 0, 0, 0, 0, 1, 0],
-    [0, 0, 1, 1, 1, 1, 0, 0],
-];
-
-let isDragging = false;
-let prevMouseX = 0;
-let prevMouseY = 0;
-let r = 0;
-let g = 0;
-let b = 0;
-let degree = 0;
-let scaleX = 1;
-let scaleY = 1;
-let MouseX = 1;
-let MouseY = 1;
-
-function drawSprite(sprite, x, y, r, g, b, a = 255) {
-    for (let j = 0; j < sprite.length; j++) {
-        for (let i = 0; i < sprite[j].length; i++) {
-            if (sprite[j][i] === 1) {
-                putPixel(x + i, y + j, r, g, b, a);
-            }
-        }
-    }
-}
-function drawSpriteRotateScale(sprite, x, y, degree, scaleX, scaleY, r, g, b, a = 255) {
-  for (let j = 0; j < sprite.length; j++) {
-    for (let i = 0; i < sprite[j].length; i++) {
-      if (sprite[j][i] === 1) {
-        const cX = i - sprite[j].length / 2;
-        const cY = j - sprite.length / 2;
-
-        //Rotate
-        const rad = degree * (Math.PI / 180);
-        const x_rot = Math.round(cX * Math.cos(rad) - cY * Math.sin(rad));
-        const y_rot = Math.round(cX * Math.sin(rad) + cY * Math.cos(rad));
-        //Scale
-        const x_scaled = Math.round(x_rot * scaleX);
-        const y_scaled = Math.round(y_rot * scaleY);
-        //Translate
-        const x_translated = x_scaled + x;
-        const y_translated = y_scaled + y;
-        
-        //drawRectFilled(x_scaled + x, y_scaled + y, scaleX, scaleY, r, g, b, a)
-        //drawRect(x_scaled + x, y_scaled + y, scaleX, scaleY, r, g, b, a)
-        drawEllipse(x_scaled + x, y_scaled + y, scaleX, scaleY, r, g, b, a)
-        //putPixel(x_scaled + x, y_scaled + y, r, g, b, a);
-      }
-    }
-  }
-}
-
-
-function toScaledMousePos(posX, posY) {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  return {
-    x: Math.floor((posX - rect.left) * scaleX),
-    y: Math.floor((posY - rect.top) * scaleY)
-  };
-}
-
-function toScaledMouseCoords(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    return {
-        x: Math.floor((clientX - rect.left) * scaleX),
-        y: Math.floor((clientY - rect.top) * scaleY)
-    };
-}
-
-
-canvas.addEventListener('click', function(event) {
-    const { x, y } = toScaledMouseCoords(event.clientX, event.clientY);
-
-    console.log('clicked', x, y);
-//    putPixel(x, y, 255, 0, 0); // Draw a red pixel on click
-    ctx.putImageData(imageData, 0, 0);
-});
-
-canvas.addEventListener('mousedown', function(event){
-    const { x, y } = toScaledMouseCoords(event.clientX, event.clientY);
-        isDragging = true
-    console.log('mousedown', x, y);
-        putPixel(x, y, 0, 255, 0); // Draw a red pixel on click
-    ctx.putImageData(imageData, 0, 0);
-});
-
-canvas.addEventListener('mouseup', function(event){
-    const { x, y } = toScaledMouseCoords(event.clientX, event.clientY);
-
-    console.log('mouseup', x, y);
-    isDragging = false
-    putPixel(x, y, 0, 0, 255); // Draw a red pixel on click
-    ctx.putImageData(imageData, 0, 0); 
-
-});
-
-canvas.addEventListener('mousemove', function(event)  {
-    const { x, y } = toScaledMouseCoords(event.clientX, event.clientY);
-    MouseX = x;
-    MouseY = y;
-
-    if(isDragging){
-            drawLine(prevMouseX, prevMouseY, x,y,r, g, b);
-    ctx.putImageData(imageData, 0, 0); 
-}
-    prevMouseX = x;
-    prevMouseY = y;
-
-
-});
-
-        window.addEventListener('keydown', function(event){
-            console.log('keydown', event.key);
-            
-            
-            if (event.key === '1'){
-                r=255; g = 0; b = 0;
-            }
-            if (event.key === '2'){
-                r=0; g = 255; b = 0;
-            }
-            if (event.key === '3'){
-                r=0; g = 0; b = 255;
-            }
-            if (event.key === 'e'){
-                r=255; g = 255; b = 255;
-            }
-            if (event.key === 'ArrowLeft'){
-                degree--;
-            }
-            if (event.key === 'ArrowRight'){
-                degree++;
-            }
-            if (event.key === 'ArrowUp'){
-                scaleY++;
-                scaleX++;
-            }
-            if(event.key === 'ArrowDown'){
-    scaleX = Math.max(1, scaleX - 1);
-    scaleY = Math.max(1, scaleY - 1);
-}
-        
-        });
-        window.addEventListener('keyup', function(event){
-            console.log('keyup', event.key);
-        });
-
-
-/*drawLine(10,10,40,150,255,0,0); // Draw a red line
-drawRect(50,50,150,150,0,255,0); // Draw a yellow rectangle
-drawRectFilled(60,60,140,140,0,0,255); // Draw a filled blue rectangle
-drawRectGradient(70,70, 130,130, 255,0,0, 0,0,255); // Draw a gradient rectangle from red to blue
-drawEllipse(100, 100, 30, 20, 255, 255, 0); // Draw a yellow ellipse
-drawSprite(spaceInvaderSprite, 120, 120, 255, 0, 255); // Draw a magenta space invader sprite
-drawSprite(smileySprite, 80, 120, 255, 255, 0); // Draw a yellow smiley sprite
-
-for(let i=0;i<5;i++){
-    for(let j=0;j<3;j++){
-        drawSprite(spaceInvaderSprite, 10 + i*20, 10 + j*20, 0, 255, 128); // Draw cyan space invaders in a grid
-    }
-}
-
-for(let i=0;i<3;i++){
-    for(let j=0;j<3;j++){
-        drawSprite(smileySprite, 110 + i*20, 10 + j*20, 255, 128, 128); 
-    }
-}
-*/
-
-//drawSprite(spaceInvaderSprite, 100, 100, 250, 0, 250);
-
-
-ctx.putImageData(imageData, 0, 0);
-
-function animate() {
-
-        drawRectFilled(0, 0, canvas.width, canvas.height, 0, 0, 0); 
-        drawLine(100,100,canvas.width-1,100,255,255,255);
-        drawLine(100,100,100,0,255,255,255);
-        //degree += 0.5; // Increase rotation degree
-        drawSpriteRotateScale(spaceInvaderSprite, MouseX, MouseY, degree, scaleX, scaleY, r, g, b); // Draw a green space invader at (10,10)
-            
-        ctx.putImageData(imageData, 0, 0);
-  requestAnimationFrame(animate);
-}
-animate();
-
-</script>
-
+        <div class="center" style="margin-top: 25px;">
+            <a href="ICG.html" class="btn">ไปที่หน้าผลงาน ICG.html &raquo;</a>
+        </div>
+    </div>
 </body>
 </html>
