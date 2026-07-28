@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Paint Program</title>
+    <link rel="stylesheet" href="PaintStyle.css">
+</head>
+<body>
+
+    
+<div class="header-student">
+    <h2>PAINT PROGRAM</h2>
+    <p>วิชา Computer Graphics</p>
+</div>
+
+<div class="main-box">
+    
+    <div class="left-panel">
+        <div class="panel-title">-- TOOLS --</div>
+        
+        <div class="btn-group">
+            <button class="my-btn active" id="btn-pencil">Pencil (ดินสอ)</button>
+            <button class="my-btn" id="btn-eraser">Eraser (ยางลบ)</button>
+            <button class="my-btn" id="btn-line">Line (เส้นตรง)</button>
+            <button class="my-btn" id="btn-rect">Rect (สี่เหลี่ยม)</button>
+            <button class="my-btn" id="btn-ellipse">Ellipse (วงรี)</button>
+        </div>
+
+        <div class="panel-title" style="margin-top:15px;">-- LINE SIZE --</div>
+        <select id="sel-size" class="size-select">
+            <option value="1">1 px</option>
+            <option value="2" selected>2 px (default)</option>
+            <option value="4">4 px</option>
+            <option value="8">8 px</option>
+            <option value="12">12 px</option>
+        </select>
+    </div>
+
+    
+    <div class="center-panel">
+        <canvas id="canvas" width="800" height="600"></canvas>
+    </div>
+
+    
+    <div class="right-panel">
+        <div class="panel-title">-- COLOR --</div>
+        
+        <div class="color-show-box">
+            <div id="cur-color-display" class="cur-color"></div>
+            <span id="hex-label">#0336FF</span>
+        </div>
+
+        <div class="panel-title" style="margin-top:15px;">-- PALETTE --</div>
+        <div class="palette-container" id="palette-grid">
+            
+        </div>
+
+        <div class="info-status">
+            <div>Size: 800x600</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const imageData = ctx.createImageData(canvas.width, canvas.height);
+const pixels = imageData.data; // Array พิกเซล [R, G, B, A, ...]
+
+// ตัวแปรเก็บสถานะโปรแกรม
+let curTool = 'pencil';
+let curColor = { r: 3, g: 54, b: 255, a: 255 }; // สีน้ำเงิน Sonny Boy เป็นค่าเริ่มต้น
+let thickness = 2;
+
+let isDrawing = false;
+let startX = 0;
+let startY = 0;
+let prevX = 0;
+let prevY = 0;
+
+
+function initBackground() {
+    for (let i = 0; i < pixels.length; i += 4) {
+        pixels[i] = 255;
+        pixels[i + 1] = 255;
+        pixels[i + 2] = 255;
+        pixels[i + 3] = 255;
+    }
+    ctx.putImageData(imageData, 0, 0);
+}
+initBackground();
+
+
+let tempBuffer = new Uint8ClampedArray(pixels.length);
+
+function saveSnapshot() {
+    tempBuffer.set(pixels);
+}
+
+function restoreSnapshot() {
+    pixels.set(tempBuffer);
+}
+
+
+function putPixel(x, y, r, g, b, a = 255) {
+    if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) return;
+    const idx = (y * canvas.width + x) * 4;
+    pixels[idx] = r;
+    pixels[idx + 1] = g;
+    pixels[idx + 2] = b;
+    pixels[idx + 3] = a;
+}
+
+// วาดจุดหัวแปรงตามความหนา
+function drawBrushPoint(cx, cy, radius, r, g, b, a = 255) {
+    const rSq = radius * radius;
+    for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+            if (dx * dx + dy * dy <= rSq) {
+                putPixel(Math.round(cx + dx), Math.round(cy + dy), r, g, b, a);
+            }
+        }
+    }
+}
+
+
+function drawLine(x1, x2, y1, y2, r, g, b, th = 1, a = 255) {
+    const dx = Math.abs(x2 - x1);
+    const dy = Math.abs(y2 - y1);
+    const radius = Math.floor(th / 2);
+
+    if (dx > dy) {
+        const m = (x2 !== x1) ? (y2 - y1) / (x2 - x1) : 0;
+        const c = y1 - m * x1;
+        const minX = Math.min(x1, x2);
+        const maxX = Math.max(x1, x2);
+        for (let x = minX; x <= maxX; x++) {
+            const y = Math.round(m * x + c);
+            if (th <= 1) {
+                putPixel(x, y, r, g, b, a);
+            } else {
+                drawBrushPoint(x, y, radius, r, g, b, a);
+            }
+        }
+    } else {
+        const m = (y2 !== y1) ? (x2 - x1) / (y2 - y1) : 0;
+        const c = x1 - m * y1;
+        const minY = Math.min(y1, y2);
+        const maxY = Math.max(y1, y2);
+        for (let y = minY; y <= maxY; y++) {
+            const x = Math.round(m * y + c);
+            if (th <= 1) {
+                putPixel(x, y, r, g, b, a);
+            } else {
+                drawBrushPoint(x, y, radius, r, g, b, a);
+            }
+        }
+    }
+}
+
+function drawRect(x1, y1, x2, y2, r, g, b, th = 1, a = 255) {
+    drawLine(x1, x2, y1, y1, r, g, b, th, a);
+    drawLine(x2, x2, y1, y2, r, g, b, th, a);
+    drawLine(x2, x1, y2, y2, r, g, b, th, a);
+    drawLine(x1, x1, y2, y1, r, g, b, th, a);
+}
+
+function drawEllipse(x1, y1, x2, y2, r, g, b, th = 1, a = 255) {
+    const cx = Math.round((x1 + x2) / 2);
+    const cy = Math.round((y1 + y2) / 2);
+    const rx = Math.abs(x2 - x1) / 2;
+    const ry = Math.abs(y2 - y1) / 2;
+
+    if (rx <= 0 || ry <= 0) return;
+
+    const step = 1 / Math.max(rx, ry);
+    const radius = Math.floor(th / 2);
+
+    for (let theta = 0; theta < 2 * Math.PI; theta += step) {
+        const x = Math.round(cx + rx * Math.cos(theta));
+        const y = Math.round(cy + ry * Math.sin(theta));
+        if (th <= 1) {
+            putPixel(x, y, r, g, b, a);
+        } else {
+            drawBrushPoint(x, y, radius, r, g, b, a);
+        }
+    }
+}
+
+function toScaledMousePos(posX, posY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+        x: Math.floor((posX - rect.left) * scaleX),
+        y: Math.floor((posY - rect.top) * scaleY)
+    };
+}
+
+canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    const pos = toScaledMousePos(e.clientX, e.clientY);
+    startX = pos.x;
+    startY = pos.y;
+    prevX = pos.x;
+    prevY = pos.y;
+
+    saveSnapshot();
+
+    if (curTool === 'pencil') {
+        const rad = Math.floor(thickness / 2);
+        drawBrushPoint(pos.x, pos.y, rad, curColor.r, curColor.g, curColor.b);
+        ctx.putImageData(imageData, 0, 0);
+    } else if (curTool === 'eraser') {
+        const rad = Math.floor(thickness * 2);
+        drawBrushPoint(pos.x, pos.y, rad, 255, 255, 255);
+        ctx.putImageData(imageData, 0, 0);
+    }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    const pos = toScaledMousePos(e.clientX, e.clientY);
+
+    if (!isDrawing) return;
+
+    if (curTool === 'pencil') {
+        drawLine(prevX, pos.x, prevY, pos.y, curColor.r, curColor.g, curColor.b, thickness);
+        prevX = pos.x;
+        prevY = pos.y;
+        ctx.putImageData(imageData, 0, 0);
+    } else if (curTool === 'eraser') {
+        const rad = Math.floor(thickness * 2);
+        drawLine(prevX, pos.x, prevY, pos.y, 255, 255, 255, rad * 2);
+        prevX = pos.x;
+        prevY = pos.y;
+        ctx.putImageData(imageData, 0, 0);
+    } else if (curTool === 'line') {
+        restoreSnapshot();
+        drawLine(startX, pos.x, startY, pos.y, curColor.r, curColor.g, curColor.b, thickness);
+        ctx.putImageData(imageData, 0, 0);
+    } else if (curTool === 'rect') {
+        restoreSnapshot();
+        drawRect(startX, startY, pos.x, pos.y, curColor.r, curColor.g, curColor.b, thickness);
+        ctx.putImageData(imageData, 0, 0);
+    } else if (curTool === 'ellipse') {
+        restoreSnapshot();
+        drawEllipse(startX, startY, pos.x, pos.y, curColor.r, curColor.g, curColor.b, thickness);
+        ctx.putImageData(imageData, 0, 0);
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    isDrawing = false;
+});
+
+const toolBtns = [
+    { id: 'btn-pencil', name: 'pencil' },
+    { id: 'btn-eraser', name: 'eraser' },
+    { id: 'btn-line', name: 'line' },
+    { id: 'btn-rect', name: 'rect' },
+    { id: 'btn-ellipse', name: 'ellipse' }
+];
+
+toolBtns.forEach(item => {
+    document.getElementById(item.id).addEventListener('click', function() {
+        toolBtns.forEach(b => document.getElementById(b.id).classList.remove('active'));
+        this.classList.add('active');
+        curTool = item.name;
+    });
+});
+
+document.getElementById('sel-size').addEventListener('change', (e) => {
+    thickness = parseInt(e.target.value, 10);
+});
+
+const sonnyColors = [
+    '#0336FF', '#7000FF', '#110229', '#1A4D2E', '#E83151', '#FF2A85',
+    '#FF6B00', '#FFA800', '#F3E5AB', '#8AC926', '#1282A2', '#00F0FF',
+    '#2B2D42', '#3D0066', '#8B0000', '#DDA15E', '#BC6C25', '#FEFAE0',
+    '#000000', '#444444', '#888888', '#CCCCCC', '#EFEFEF', '#FFFFFF'
+];
+
+const paletteGrid = document.getElementById('palette-grid');
+const curColorDisp = document.getElementById('cur-color-display');
+const hexLabel = document.getElementById('hex-label');
+
+function hexToRgb(hex) {
+    const val = parseInt(hex.replace('#', ''), 16);
+    return {
+        r: (val >> 16) & 255,
+        g: (val >> 8) & 255,
+        b: val & 255,
+        a: 255
+    };
+}
+
+sonnyColors.forEach((hex, i) => {
+    const el = document.createElement('div');
+    el.className = 'color-box';
+    el.style.backgroundColor = hex;
+    if (i === 0) el.classList.add('selected');
+
+    el.addEventListener('click', () => {
+        document.querySelectorAll('.color-box').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        curColor = hexToRgb(hex);
+        curColorDisp.style.backgroundColor = hex;
+        hexLabel.innerText = hex;
+    });
+
+    paletteGrid.appendChild(el);
+});
+curColorDisp.style.backgroundColor = sonnyColors[0];
+</script>
+
+</body>
+</html>
