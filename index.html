@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>CV & Project Index - อภิสิทธิ์ สุมาวรรณ์</title>
     <style>
-        /* Sonny Boy Palette Style (Student Version) */
         :root {
             --bg-dark: #0b0c14;
             --panel-bg: #121420;
@@ -88,7 +87,6 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
-        /* ปุ่มกดสไตล์ Sonny Boy */
         .btn-container {
             display: flex;
             justify-content: center;
@@ -116,7 +114,7 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
-        /* ปุ่มสีส้ม/แดงสไตล์ Sonny Boy สำหรับ Paint Program */
+        
         .btn-paint {
             background: var(--sonny-crimson);
             border-color: var(--sonny-crimson);
@@ -137,7 +135,7 @@
         <h2>ทักษะความสามารถ (Skills)</h2>
         <p>Java, Assembly (RISC-V), SQL / Database, HTML/CSS/JavaScript, Computer Graphics Algorithms</p>
 
-        <h2>รายละเอียดโครงงาน (Project: 24-bit Sprite Low-Level Transformation System)</h2>
+        <h2>รายละเอียดหัวข้อรายวิชาจากที่เรียนมา</h2>
         <ul>
             <li><b>Memory Buffer & 24-bit Color:</b> จอง Buffer บนหน่วยความจำผ่าน <code>ctx.createImageData</code> ควบคุมพิกเซลบน Canvas โดยตรงในรูปแบบ Array [R, G, B, A, ...] และคำนวณสี 24-bit (True Color) ผ่าน <code>putPixel(x, y, r, g, b)</code> แยกช่องสีละ 8-bit รองรับสูงสุด 16.7 ล้านสี</li>
             <li><b>Scaling & Translation:</b> คูณพิกัดหลังหมุนด้วย <code>scaleX</code>, <code>scaleY</code> เพื่อย่อ/ขยาย และนำไปบวกพิกัด <code>MouseX</code>, <code>MouseY</code> เพื่อเลื่อนตำแหน่งวัตถุ</li>
