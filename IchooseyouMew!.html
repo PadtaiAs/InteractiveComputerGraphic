@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ฉันเลือกนายมิว!</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/EXRLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+
+    <script>
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // Shadow
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+
+        
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(0, 5, 10);
+        camera.lookAt(0, 0, 0);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        
+
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(10, 10, 10);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        //สกาย
+        const exrSkyboxUrl = 'https://padtaias.github.io/InteractiveComputerGraphic/meadow_2_1k.exr';
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+
+        new THREE.EXRLoader()
+            .setDataType(THREE.UnsignedByteType)
+            .load(exrSkyboxUrl, (texture) => {
+                const skybox = pmremGenerator.fromEquirectangular(texture).texture;
+                scene.background = skybox;
+                scene.environment = skybox;
+
+                texture.dispose();
+                pmremGenerator.dispose();
+            }, undefined, (error) => {
+                console.error('Unable to load EXR skybox:', error);
+            });
+
+
+
+//พื้นนะ
+ /*       const texFloor = new THREE.TextureLoader().load('https://padtaias.github.io/InteractiveComputerGraphic/Grass001_1K-JPG_Color.jpg', t => {
+        });
+        const matFloor = new THREE.MeshStandardMaterial({
+            map: texFloor,
+            doubleSided: true
+        });
+        const planeGeometry = new THREE.PlaneGeometry(10, 10);
+        const plane = new THREE.Mesh(planeGeometry, matFloor);
+        plane.rotation.x = -Math.PI / 2; 
+        plane.receiveShadow = true;
+        plane.position.set(0, 0, 0);
+        scene.add(plane); */
+
+        
+
+//คาแรคเตอนะ
+        const loader = new THREE.GLTFLoader();
+        loader.load('https://padtaias.github.io/InteractiveComputerGraphic/mewtwowithpokeball.glb', (gltf) => {
+            const model = gltf.scene;
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+            model.position.set(0, 0, 0);
+            scene.add(model);
+        });
+
+        
+        const gui = new dat.GUI({ width: 300 });
+
+        const dirLightFolder = gui.addFolder('Directional Light');
+        dirLightFolder.add(directionalLight.position, 'x', -20, 20, 0.1).name('Position X');
+        dirLightFolder.add(directionalLight.position, 'y', 0, 20, 0.1).name('Position Y');
+        dirLightFolder.add(directionalLight.position, 'z', -20, 20, 0.1).name('Position Z');
+        dirLightFolder.add(directionalLight, 'intensity', 0, 5, 0.1).name('Intensity');
+        dirLightFolder.addColor({ color: '#ffffff' }, 'color').name('Color').onChange((val) => {
+            directionalLight.color.set(val);
+        });
+        dirLightFolder.open();
+
+       
+
+        
+        function animate(t) {
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate(0);
+
+        window.addEventListener('keydown', (event) => {
+
+        });
+
+    </script>
+
+</body>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+    }
+
+    /* 1. จุดสำคัญ: ต้องเป็น overflow: visible เพื่อไม่ให้กล่องเลือกสีโดนตัดทิ้ง */
+    .dg.main.a {
+        float: left !important;
+        margin-left: 15px !important;
+        margin-top: 15px !important;
+        border: 3px solid #222224 !important;
+        border-radius: 12px !important;
+        overflow: visible !important; /* แก้จาก hidden เป็น visible */
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    .dg {
+        font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif !important;
+        text-shadow: none !important;
+        letter-spacing: 0.5px;
+    }
+
+    /* หัวข้อ Folder สไตล์ Poké Ball */
+    .dg li.title {
+        background: linear-gradient(135deg, #EE1515 0%, #B80D0D 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        font-size: 13px !important;
+        text-transform: uppercase;
+        border-left: 5px solid #FFDE00 !important;
+        box-shadow: inset 0 -1px 0 #222224;
+    }
+
+    /* แถบรายการข้อมูลสีขาวครึ่งล่างของ Poké Ball */
+    .dg li:not(.folder) {
+        background: #F4F6F9 !important;
+        border-bottom: 1px solid #D5D9E2 !important;
+        color: #2B2D42 !important;
+        font-weight: 600 !important;
+        overflow: visible !important; /* ป้องกันแถวตัด Pop-up สี */
+    }
+
+    .dg li:not(.folder):hover {
+        background: #FFFFFF !important;
+    }
+
+    /* 2. ดันกล่อง Color Picker ออกมาด้านข้างนอกกรอบ GUI ให้เห็นชัดเจน 100% */
+    .dg .cr.color .selector {
+        position: absolute !important;
+        left: 100% !important; /* ยื่นออกมาทางขวานอกกรอบเมนู */
+        margin-left: 10px !important;
+        top: -10px !important;
+        z-index: 99999 !important;
+        border: 3px solid #222224 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45) !important;
+        background-color: #222224 !important;
+    }
+
+    /* ปรับช่องแสดงตัวอย่างสี (Color Preview Bar) ในแถวให้มองเห็นชัดเจน */
+    .dg .cr.color .c {
+        position: relative;
+        overflow: visible !important;
+    }
+
+    /* รางเลื่อน Slider */
+    .dg .c .slider {
+        background: #DCE1E9 !important;
+        border: 1px solid #BAC0CD !important;
+        border-radius: 20px !important;
+        height: 18px !important;
+    }
+
+    /* หลอดเลื่อนสีน้ำเงิน Pokémon Blue */
+    .dg .c .slider-fg {
+        background: linear-gradient(90deg, #3B4CCA 0%, #1D2B99 100%) !important;
+        border-radius: 20px !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    /* ช่องกรอกตัวเลข */
+    .dg .cr.number input[type=text] {
+        color: #1A1A1A !important;
+        background: #FFFFFF !important;
+        border: 1.5px solid #3B4CCA !important;
+        border-radius: 6px !important;
+        font-weight: 700 !important;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* กล่อง Checkbox */
+    .dg .c input[type=checkbox] {
+        accent-color: #EE1515 !important;
+    }
+</style>
+
+</html>
