@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Portfolio</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+.portfolio-card {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    width: 320px;
+    background: rgba(255, 252, 247, 0.94);
+    border: 2px solid #e2cbb4;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(184, 137, 95, 0.2);
+    backdrop-filter: blur(8px);
+    padding: 18px;
+    color: #5c4738;
+    font-family: sans-serif;
+    z-index: 10;
+    user-select: none;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px dashed #ebd6c1;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.card-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #8c5d3d;
+}
+
+.window-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+.dot-red { background: #f28b82; }
+.dot-yellow { background: #fdd663; }
+.dot-green { background: #81c995; }
+
+.badge {
+    display: inline-block;
+    background: #faeedb;
+    color: #b56c35;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #433022;
+    margin: 0 0 4px 0;
+}
+
+.student-id {
+    font-size: 13px;
+    color: #9c7a5f;
+    margin-bottom: 12px;
+}
+
+.info-box {
+    background: #fff8f0;
+    border: 1px solid #f0decb;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #634b39;
+}
+
+.info-row {
+    display: flex;
+}
+
+.info-label {
+    width: 55px;
+    flex-shrink: 0;
+    color: #a47854;
+}
+    </style>
+</head>
+
+<body>
+    <div class="portfolio-card">
+    <div class="card-header">
+        <span class="card-title">✦ Student Portfolio</span>
+        <div class="window-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+        </div>
+    </div>
+
+    <span class="badge">Computer Science</span>
+    <h2 class="user-name">นายอภิสิทธิ์ สุมาวรรณ์</h2>
+    <div class="student-id">รหัสนิสิต: 6721601613</div>
+
+    <div class="info-box">
+        <div class="info-row">
+            <span class="info-label">สาขา:</span>
+            <span>วิทยาการคอมพิวเตอร์</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">คณะ:</span>
+            <span>ศิลปศาสตร์และวิทยาศาสตร์</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">สถาบัน:</span>
+            <span>มหาวิทยาลัยเกษตรศาสตร์</span>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/EXRLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+
+    <script>
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xfcf5ec);
+
+        
+        
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(-5, 3, -10);
+        camera.lookAt(0, 0, 0);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        
+
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(-5,30, -10);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        /*สกาย
+        const exrSkyboxUrl = 'https://padtaias.github.io/InteractiveComputerGraphic/meadow_2_1k.exr';
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+
+        new THREE.EXRLoader()
+            .setDataType(THREE.UnsignedByteType)
+            .load(exrSkyboxUrl, (texture) => {
+                const skybox = pmremGenerator.fromEquirectangular(texture).texture;
+                scene.background = skybox;
+                scene.environment = skybox;
+
+                texture.dispose();
+                pmremGenerator.dispose();
+            }, undefined, (error) => {
+                console.error('Unable to load EXR skybox:', error);
+            });
+
+
+
+//พื้นนะ
+        const texFloor = new THREE.TextureLoader().load('https://padtaias.github.io/InteractiveComputerGraphic/Grass001_1K-JPG_Color.jpg', t => {
+        });
+        const matFloor = new THREE.MeshStandardMaterial({
+            map: texFloor,
+            doubleSided: true
+        });
+        const planeGeometry = new THREE.PlaneGeometry(10, 10);
+        const plane = new THREE.Mesh(planeGeometry, matFloor);
+        plane.rotation.x = -Math.PI / 2; 
+        plane.receiveShadow = true;
+        plane.position.set(0, 0, 0);
+        scene.add(plane); */
+
+        
+
+//คาแรคเตอนะ
+        const loader = new THREE.GLTFLoader();
+        loader.load('https://padtaias.github.io/InteractiveComputerGraphic/Padtai.glb', (gltf) => {
+            const model = gltf.scene;
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+            model.position.set(0, 0, 0);
+            scene.add(model);
+        });
+
+        
+        
+
+       
+
+        
+        function animate(t) {
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate(0);
+
+        window.addEventListener('keydown', (event) => {
+
+        });
+
+    </script>
+
+</body>
+
+</html>
